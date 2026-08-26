@@ -1,14 +1,14 @@
 # TryHackMe – Pickle Rick
 
 **Room:** [Pickle Rick](https://tryhackme.com/room/picklerick)  
-**Date Completed:** August 21, 2026  
-**Tools Used:** Nmap, Gobuster, Kali Linux, OpenVPN
+**Date Completed:** 8/21/26  
+**Tools Used:** Nmap, Gobuster, Kali Linux, OpenVPN  
 
 ---
 
 ## Synopsis
 
-**Pickle Rick** is a beginner-to-intermediate penetration testing room on TryHackMe. The objective is to compromise the web server and locate **three secret ingredients** hidden across the system. This room tests foundational skills in web enumeration, Linux command-line bypasses, and privilege escalation.
+Pickle Rick is a beginner-to-intermediate penetration testing room on TryHackMe. The objective is to compromise the web server and locate **3 secret ingredients** hidden across the system. This room tests foundational skills in web enumeration, Linux command-line bypasses, and privilege escalation.
 
 ---
 
@@ -16,7 +16,7 @@
 
 ### 1. Reconnaissance
 
-A standard Nmap scan was performed to identify open ports and services on the target IP:
+I started with a standard Nmap scan to identify open ports and services on the target IP:
 
 ```bash
 sudo nmap -sC -sV -T4 <TARGET_IP>
@@ -27,7 +27,7 @@ Results:
 
     Port 80 (HTTP) – Open
 
-Given the open HTTP port, the investigation focused on the web application.
+Since port 80 was accessible, I directed my focus to the web application.
 2. Web Enumeration
 
 Visiting http://<TARGET_IP> in a browser revealed a Rick and Morty themed portal.
@@ -37,31 +37,34 @@ html
 
 <!-- Username: R1ckRul3s -->
 
-To uncover hidden directories, a Gobuster directory scan was launched:
+To find hidden directories, I ran a Gobuster directory scan:
 bash
 
 gobuster dir -u http://<TARGET_IP> -w /usr/share/wordlists/dirb/common.txt -x php,txt
 
-This scan revealed several key paths:
+This uncovered several key paths:
 
-    /robots.txt – Contained the string: Wubbalubbadubdub
+    /robots.txt – Contained the string Wubbalubbadubdub
 
     /login.php – The admin login portal
 
 3. Gaining Initial Access
 
-Using the credentials discovered earlier, I logged into the portal:
+Using the credentials found earlier, I logged into the portal:
+Field	Value
+Username	R1ckRul3s
+Password	Wubbalubbadubdub
 
-    Username: R1ckRul3s
-
-    Password: Wubbalubbadubdub
-
-Upon successful login, the portal presented a command execution panel, allowing system commands to be run directly.
+The portal presented a command execution panel, allowing me to run system commands directly.
 4. Finding the First Ingredient
 
-I ran ls to list the current directory and spotted a file named Sup3rS3cretPickl3Ingred.txt.
+I ran ls to list the current directory and spotted Sup3rS3cretPickl3Ingred.txt.
 
-Attempted: cat Sup3rS3cretPickl3Ingred.txt
+Attempted:
+bash
+
+cat Sup3rS3cretPickl3Ingred.txt
+
 Result: Command blocked by the system.
 
 Bypass: I used less as an alternative text reader:
@@ -76,7 +79,7 @@ I read the clue.txt file, which instructed me to "look around the file system."
 
 Navigating to /home/rick, I found a file named second ingredients (note the space).
 
-Challenge: The spaced filename required proper escaping. I successfully read it using:
+Challenges faced: The spaced filename required proper escaping. I successfully read it using:
 bash
 
 less "/home/rick/second ingredients"
@@ -84,7 +87,7 @@ less "/home/rick/second ingredients"
 Second Ingredient: [Insert your found ingredient here]
 6. Privilege Escalation (Root)
 
-To access the final ingredient, root privileges were required. I checked my sudo permissions:
+To access the final ingredient, I needed root privileges. I checked my sudo permissions:
 bash
 
 sudo -l
@@ -103,18 +106,23 @@ ls /root
 less /root/3rd.txt
 
 Third Ingredient: fleeb juice
-Conclusion
+Struggles & Solutions
+Struggle	Solution
+Command Restriction: The cat command was blacklisted by the web panel, preventing me from reading files directly.	I tested alternative Linux utilities. less, more, and strings all bypassed the restriction successfully.
+Spaced Filename: The second ingredients file failed to open due to the space in its name.	Wrapping the path in double quotes ("...") or escaping the space with a backslash (\ ) resolved the syntax error.
+Enumeration Time: Initially, my Gobuster scan using the directory-list-2.3-medium.txt wordlist took too long.	I switched to the shorter common.txt list, which still contained /login.php and /robots.txt, significantly speeding up the process.
+Lessons Learned
 
-The Pickle Rick room effectively demonstrates essential penetration testing techniques, including:
+    Never trust client-side source code: Hidden comments often leak sensitive credentials.
 
-    Web enumeration and source code analysis
+    Diversify your command toolkit: When cat fails, less, tac, nl, and strings are great fallbacks.
 
-    Directory brute-forcing with Gobuster
+    Sudo misconfigurations are low-hanging fruit: Always run sudo -l immediately after gaining a foothold—passwordless sudo is a game-over for the defender.
 
-    Command injection and bypass techniques
+Flags Summary
+Ingredient	Location	Value
+1st	/var/www/html/Sup3rS3cretPickl3Ingred.txt	mr. meeseek hair
+2nd	/home/rick/second ingredients	[Yours here]
+3rd (Root)	/root/3rd.txt	fleeb juice
 
-    Linux privilege escalation via misconfigured sudo permissions
-
-Successfully compromising the system and retrieving all three ingredients validates a solid understanding of these core concepts.
-
-Writeup completed by [Your Name]
+Room completed on 8/21/26 – Writeup by [Your Name/GitHub Handle]
