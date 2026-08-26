@@ -28,6 +28,7 @@ Results:
     Port 80 (HTTP) – Open
 
 Given the open HTTP port, the investigation focused on the web application.
+
 2. Web Enumeration
 
 Visiting http://10.80.170.147 in a browser revealed a Rick and Morty themed portal.
@@ -56,11 +57,13 @@ Using the credentials discovered earlier, I logged into the portal:
     Password: Wubbalubbadubdub
 
 Upon successful login, the portal presented a command execution panel, allowing system commands to be run directly.
+
 4. Finding the First Ingredient
 
 I ran ls to list the current directory and spotted a file named Sup3rS3cretPickl3Ingred.txt.
 
 Attempted: cat Sup3rS3cretPickl3Ingred.txt
+
 Result: Command blocked by the system.
 
 Bypass: I used less as an alternative text reader:
@@ -68,6 +71,7 @@ Bypass: I used less as an alternative text reader:
 less Sup3rS3cretPickl3Ingred.txt
 ```
 First Ingredient: mr. meeseek hair
+
 5. Finding the Second Ingredient
 
 I read the clue.txt file, which instructed me to "look around the file system."
@@ -79,6 +83,7 @@ Challenge: The spaced filename required proper escaping. I successfully read it 
 less "/home/rick/second ingredients"
 ```
 Second Ingredient: 1 jerry tear
+
 6. Privilege Escalation (Root)
 
 To access the final ingredient, root privileges were required. I checked my sudo permissions:
@@ -97,6 +102,7 @@ ls /root
 less /root/3rd.txt
 ```
 Third Ingredient: fleeb juice
+
 Conclusion
 
 The Pickle Rick room effectively demonstrates essential penetration testing techniques, including:
